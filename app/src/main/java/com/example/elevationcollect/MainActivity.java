@@ -1,10 +1,12 @@
 package com.example.elevationcollect;
 
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -19,7 +21,15 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
         private TextView textView;
         private SensorManager mSensorManager;
-        private List<Sensor> deviceSensors;
+//        private List<Sensor> deviceSensors;
+        private Sensor gyroscopeSensor;
+        private SensorEventListener gyroscopeEventListener;
+        private float fastest_x;
+        private float fastest_y;
+        private float fastest_z;
+        private float fastest_neg_x;
+        private float fastest_neg_y;
+        private float fastest_neg_z;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +47,52 @@ public class MainActivity extends AppCompatActivity {
 
                 textView = findViewById(R.id.textViewSensors);
                 mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-                deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+                gyroscopeSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+                fastest_x = 0;
+                fastest_y = 0;
+                fastest_z = 0;
+                fastest_neg_x = 0;
+                fastest_neg_y = 0;
+                fastest_neg_z = 0;
+                if (gyroscopeSensor == null){
+                        Toast.makeText(this, "This device has no Gyroscope", Toast.LENGTH_SHORT).show();
+                        finish();
+                }
+                gyroscopeEventListener = new SensorEventListener() {
+                        @Override
+                        public void onSensorChanged(SensorEvent event) {
+                                if (event.values[0] > fastest_x){
+                                        fastest_x = event.values[0];
+                                }
+
+                                if (event.values[1] > fastest_y){
+                                        fastest_y = event.values[1];
+                                }
+                                if (event.values[2] > fastest_z){
+                                        fastest_z = event.values[2];
+                                }
+                                if (event.values[0] < fastest_neg_x){
+                                        fastest_neg_x = event.values[0];
+                                }
+                                if (event.values[1] < fastest_neg_y){
+                                        fastest_neg_y = event.values[1];
+                                }
+                                if (event.values[2] < fastest_neg_z){
+                                        fastest_neg_z = event.values[2];
+                                }
+
+                                textView.setText("Fastest X: " + fastest_x + "\n" + "Slowest X:" + fastest_neg_x + "\n" +
+                                  "Fastest Y: "+ fastest_y + "\n" + "Slowest Y:" + fastest_neg_y + "\n" +
+                                  "Fastest Z: " + fastest_z + "\n" + "Slowest Z:" + fastest_neg_z);
+                        
+                        }
+
+                        @Override
+                        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                        }
+                };
+//                deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 //                printSensors();
         }
 
@@ -51,17 +106,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onResume() {
                 super.onResume();
-
-//                // for the system's orientation sensor registered listeners
-//                mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_GAME);
+                mSensorManager.registerListener(gyroscopeEventListener, gyroscopeSensor, mSensorManager.SENSOR_DELAY_FASTEST);
         }
 
         @Override
         protected void onPause() {
                 super.onPause();
-
-//                // to stop the listener and save battery
-//                mSensorManager.unregisterListener(this);
+                mSensorManager.unregisterListener(gyroscopeEventListener);
         }
 
 

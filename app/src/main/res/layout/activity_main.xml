@@ -35,9 +35,8 @@
 
     <TextView
         android:id="@+id/textViewSensors"
-        android:layout_width="411dp"
-        android:layout_height="618dp"
-        android:text="TextView"
+        android:layout_width="157dp"
+        android:layout_height="105dp"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

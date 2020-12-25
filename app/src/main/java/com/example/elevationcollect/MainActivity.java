@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 pressureEventListener = new SensorEventListener() {
                         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                        FileWriter csvWriter = new FileWriter("elevation_data.csv");
                         @Override
                         public void onSensorChanged(SensorEvent event) {
                                 if (Math.abs(Float.parseFloat(textViewAltitude.getText().toString()) - SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0])) > 0.01){

@@ -16,20 +16,17 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import java.util.List;
+import java.io.FileWriter;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
-        private TextView textView;
+        private TextView textViewAltitude;
+        private TextView textViewAccelerator;
         private SensorManager mSensorManager;
-//        private List<Sensor> deviceSensors;
-        private Sensor gyroscopeSensor;
-        private SensorEventListener gyroscopeEventListener;
-        private float fastest_x;
-        private float fastest_y;
-        private float fastest_z;
-        private float fastest_neg_x;
-        private float fastest_neg_y;
-        private float fastest_neg_z;
+        private Sensor pressureSensor;
+        private Sensor acceleratorSensor;
+        private SensorEventListener pressureEventListener;
+        private SensorEventListener acceleratorEventListener;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -45,46 +42,40 @@ public class MainActivity extends AppCompatActivity {
                 NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
                 NavigationUI.setupWithNavController(navView, navController);
 
-                textView = findViewById(R.id.textViewSensors);
+                textViewAltitude = findViewById(R.id.textViewAltitude);
+                textViewAltitude.setText("0");
+                textViewAccelerator = findViewById(R.id.textViewAccelerator);
                 mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-                gyroscopeSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-                fastest_x = 0;
-                fastest_y = 0;
-                fastest_z = 0;
-                fastest_neg_x = 0;
-                fastest_neg_y = 0;
-                fastest_neg_z = 0;
-                if (gyroscopeSensor == null){
-                        Toast.makeText(this, "This device has no Gyroscope", Toast.LENGTH_SHORT).show();
+                pressureSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+                acceleratorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+                if (pressureSensor == null) {
+                        Toast.makeText(this, "This device has no pressure sensor", Toast.LENGTH_SHORT).show();
                         finish();
                 }
-                gyroscopeEventListener = new SensorEventListener() {
+                pressureEventListener = new SensorEventListener() {
+                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                        FileWriter csvWriter = new FileWriter("elevation_data.csv");
                         @Override
                         public void onSensorChanged(SensorEvent event) {
-                                if (event.values[0] > fastest_x){
-                                        fastest_x = event.values[0];
+                                if (Math.abs(Float.parseFloat(textViewAltitude.getText().toString()) - SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0])) > 0.01){
+                                        textViewAltitude.setText(decimalFormat.format(SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0])) + "");
                                 }
+                        }
+                        @Override
+                        public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-                                if (event.values[1] > fastest_y){
-                                        fastest_y = event.values[1];
-                                }
-                                if (event.values[2] > fastest_z){
-                                        fastest_z = event.values[2];
-                                }
-                                if (event.values[0] < fastest_neg_x){
-                                        fastest_neg_x = event.values[0];
-                                }
-                                if (event.values[1] < fastest_neg_y){
-                                        fastest_neg_y = event.values[1];
-                                }
-                                if (event.values[2] < fastest_neg_z){
-                                        fastest_neg_z = event.values[2];
-                                }
+                        }
+                };
 
-                                textView.setText("Fastest X: " + fastest_x + "\n" + "Slowest X:" + fastest_neg_x + "\n" +
-                                  "Fastest Y: "+ fastest_y + "\n" + "Slowest Y:" + fastest_neg_y + "\n" +
-                                  "Fastest Z: " + fastest_z + "\n" + "Slowest Z:" + fastest_neg_z);
-                        
+                if (acceleratorSensor == null) {
+                        Toast.makeText(this, "This device has no accelerator sensor", Toast.LENGTH_SHORT).show();
+                        finish();
+                }
+                acceleratorEventListener = new SensorEventListener() {
+                        @Override
+                        public void onSensorChanged(SensorEvent event) {
+                                textViewAccelerator.setText("x-axis: " + event.values[0] + "\ny-axis: " + event.values[1] + "\nz-axis: " + event.values[0]);
                         }
 
                         @Override
@@ -92,28 +83,31 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                 };
-//                deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-//                printSensors();
         }
 
+
+        @Override
+        protected void onResume() {
+                super.onResume();
+                mSensorManager.registerListener(pressureEventListener, pressureSensor, mSensorManager.SENSOR_DELAY_FASTEST);
+                mSensorManager.registerListener(acceleratorEventListener, acceleratorSensor, mSensorManager.SENSOR_DELAY_FASTEST);
+        }
+
+        @Override
+        protected void onPause() {
+                super.onPause();
+                mSensorManager.unregisterListener(pressureEventListener);
+                mSensorManager.unregisterListener(acceleratorEventListener);
+        }
+
+
+//        private List<Sensor> deviceSensors;
+//                deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+//                printSensors();
 //        protected void printSensors(){
 //                textView.setText(deviceSensors.size()+"");
 //                for(Sensor sensor : deviceSensors){
 //                        textView.setText(textView.getText()+"\n"+sensor.getName());
 //                }
 //        }
-
-        @Override
-        protected void onResume() {
-                super.onResume();
-                mSensorManager.registerListener(gyroscopeEventListener, gyroscopeSensor, mSensorManager.SENSOR_DELAY_FASTEST);
-        }
-
-        @Override
-        protected void onPause() {
-                super.onPause();
-                mSensorManager.unregisterListener(gyroscopeEventListener);
-        }
-
-
 }

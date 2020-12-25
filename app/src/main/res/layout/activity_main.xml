@@ -34,14 +34,29 @@
         app:navGraph="@navigation/mobile_navigation" />
 
     <TextView
-        android:id="@+id/textViewSensors"
-        android:layout_width="157dp"
-        android:layout_height="105dp"
+        android:id="@+id/textViewAltitude"
+        android:layout_width="359dp"
+        android:layout_height="88dp"
+        android:text="Altitude"
+        android:textSize="36sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.307"
         app:layout_constraintStart_toStartOf="@+id/nav_host_fragment"
         app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.427" />
+
+    <TextView
+        android:id="@+id/textViewAccelerator"
+        android:layout_width="226dp"
+        android:layout_height="90dp"
+        android:text="Accelerator"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
+        app:layout_constraintVertical_bias="0.941" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

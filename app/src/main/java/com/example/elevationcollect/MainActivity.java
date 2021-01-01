@@ -54,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
                         finish();
                 }
                 pressureEventListener = new SensorEventListener() {
-                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                        DecimalFormat decimalFormat = new DecimalFormat("0.0");
                         @Override
                         public void onSensorChanged(SensorEvent event) {
-                                if (Math.abs(Float.parseFloat(textViewAltitude.getText().toString()) - SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0])) > 0.01){
+                                if (Math.abs(Float.parseFloat(textViewAltitude.getText().toString()) - SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0])) > 0.3  ){
                                         textViewAltitude.setText(decimalFormat.format(SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0])) + "");
                                 }
                         }
@@ -109,4 +109,8 @@ public class MainActivity extends AppCompatActivity {
 //                        textView.setText(textView.getText()+"\n"+sensor.getName());
 //                }
 //        }
+
+        protected void recordAltitude(Float meters){
+
+        }
 }
